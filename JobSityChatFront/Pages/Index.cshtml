@@ -1,0 +1,97 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+
+<div id="userRegistered"></div>
+<input type="button" id="logOut" value="LogOut" onclick="logout();" />
+<div id="chat">
+    <form id="frm-send-message" action="#">
+        <label for="message">Message:</label>
+        <input type="text" id="message" />
+        <input type="submit" id="send" value="Send" />
+    </form>
+    <div class="clear">
+    </div>
+    <ul id="messages"></ul>
+</div>
+<script src="lib/signalr/signalr.js"></script>
+
+
+<script>
+    var authenticatedUser;
+    window.onload = function() {
+        authenticatedUser = JSON.parse(localStorage.getItem('user'));
+        if (!authenticatedUser)
+            window.location.replace("/login");
+        else
+            userText(authenticatedUser);
+    };
+
+
+    var messageArray = [];
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:44306/chat",
+            {
+                accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicHJ1ZWJhIiwiZXhwIjoxNTcxNTUwODEwLCJpc3MiOiJqb2JzaXR5LmNvbSIsImF1ZCI6ImpvYnNpdHkuY29tIn0.Rpwhr_XL-axL1KX073k9pzW-efrTCsjD-vEH3_h0qcg" // Return access token
+            }
+        )
+        .build();
+
+    connection.start().then(function () {
+        console.log("connected");
+    }).catch(err => console.error(err.toString()));
+
+
+
+
+    connection.on('Send', (message) => {
+
+        if (messageArray.length === 50) {
+            messageArray.splice(0, 1);
+        }
+        messageArray.push(message);
+        console.log(messageArray);
+
+        document.getElementById('messages').innerHTML = "";
+
+        messageArray.map((item) => {
+            appendLine(`${item.sender} says: ${item.message}`);
+        });
+
+    });
+
+    document.getElementById('frm-send-message').addEventListener('submit', event => {
+        let message = document.getElementById('message').value;
+
+
+        document.getElementById('message').value = '';
+        var newMessage = {
+            sender: authenticatedUser.userName ,
+            message: message
+        }
+        connection.invoke('Send', newMessage);
+        event.preventDefault();
+    });
+
+    function appendLine(line, color) {
+        let li = document.createElement('li');
+        li.innerText = line;
+        document.getElementById('messages').appendChild(li);
+    };
+
+    function userText(user) {
+        let li = document.createElement('span');
+        li.innerText = `User:${user.firstName} ${user.lastName}`;
+        document.getElementById('userRegistered').appendChild(li);
+    };
+
+    function logout() {
+        localStorage.removeItem('user');
+        window.location.replace('/login');
+
+    }
+
+</script>

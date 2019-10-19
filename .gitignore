@@ -3,3 +3,21 @@
 ################################################################################
 
 /Business/bin/Debug/netcoreapp2.2
+/Business/obj/Debug/netcoreapp2.2
+/ChatHub/bin/Debug/netcoreapp2.2
+/Business/obj
+/ChatHub/obj
+/ChatServices/bin/Debug/netcoreapp2.2
+/ChatServices/obj/Debug/netcoreapp2.2
+/ChatServices/obj
+/Entities/bin/Debug/netcoreapp2.2
+/Entities/obj/Debug/netcoreapp2.2
+/Infrastructure/bin/Debug/netcoreapp2.2
+/Infrastructure/obj
+/Entities/obj
+/jobsityChat/bin/Debug/netcoreapp2.2
+/jobsityChat/obj
+/JobSityChatFront/bin/Debug/netcoreapp2.2
+/JobSityChatFront/node_modules
+/JobSityChatFront/obj
+/.vs/jobsityChat

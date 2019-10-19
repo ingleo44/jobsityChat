@@ -1,0 +1,75 @@
+﻿@page
+@model JobSityChatFront.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div id="register">
+   
+        <div class="form-group">
+            <label for="userName">Username:</label>
+            <input type="text" id="userName" />
+        </div>
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" />
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" />
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" />
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" />
+        </div>
+        <div class="form-group">
+            <input type="button" id="register" value="Register" onclick="registerUser();" />
+        </div>
+ 
+
+</div>
+
+<script>
+
+
+    window.onload = function() {
+        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
+        if (authenticatedUser)
+            window.location.replace("/index");
+       
+    };
+
+   function registerUser() {
+        let userName = document.getElementById('userName').value;
+        let firstName = document.getElementById('firstName').value;
+        let lastName = document.getElementById('lastName').value;
+        let password = document.getElementById('password').value;
+        var data = {
+            userName: userName,
+            firstName: firstName,
+            lastName: lastName,
+            password: password
+        }
+
+        $.ajax({
+            method: "POST",
+            url: "https://localhost:44319/api/User",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+
+        })
+            .done(function (msg) {
+                alert("User Created: ");
+                window.location.replace("/Login");
+            });
+        
+
+    };
+
+
+</script>
