@@ -48,7 +48,10 @@
 
 
     connection.on('Send', (message) => {
-
+        authenticatedUser = JSON.parse(localStorage.getItem('user'));
+        if (!authenticatedUser) {
+            window.location.replace('/login');
+        }
         if (messageArray.length === 50) {
             messageArray.splice(0, 1);
         }
