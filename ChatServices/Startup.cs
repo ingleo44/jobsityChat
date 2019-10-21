@@ -77,7 +77,12 @@ namespace ChatServices
                 options.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(options=>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }
+            )
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -110,13 +115,7 @@ namespace ChatServices
             {
                 app.UseDeveloperExceptionPage();
 
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CHAT API");
-                    c.RoutePrefix = string.Empty;
-                });
+               
             }
 
             else
@@ -124,6 +123,14 @@ namespace ChatServices
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "CHAT API");
+                c.RoutePrefix = string.Empty;
+            });
             app.UseMiddleware<TokenManagerMiddleWare>();
             app.UseAuthentication();
             app.UseSession();

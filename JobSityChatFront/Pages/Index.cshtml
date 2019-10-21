@@ -22,7 +22,7 @@
 
 <script>
     var authenticatedUser;
-    window.onload = function() {
+    window.onload = function () {
         authenticatedUser = JSON.parse(localStorage.getItem('user'));
         if (!authenticatedUser)
             window.location.replace("/login");
@@ -32,17 +32,25 @@
 
 
     var messageArray = [];
+    const authToken = JSON.parse(localStorage.getItem('token'));
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("https://localhost:44306/chat",
             {
-                accessTokenFactory: () => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicHJ1ZWJhIiwiZXhwIjoxNTcxNTUwODEwLCJpc3MiOiJqb2JzaXR5LmNvbSIsImF1ZCI6ImpvYnNpdHkuY29tIn0.Rpwhr_XL-axL1KX073k9pzW-efrTCsjD-vEH3_h0qcg" // Return access token
+                accessTokenFactory: () => authToken // Return access token
             }
         )
         .build();
 
     connection.start().then(function () {
         console.log("connected");
-    }).catch(err => console.error(err.toString()));
+    }).catch(err => {
+        if (err.statusCode === 401) {
+            logout();
+        } else {
+            console.log(err.toString());
+        }
+
+    });
 
 
 
@@ -72,7 +80,7 @@
 
         document.getElementById('message').value = '';
         var newMessage = {
-            sender: authenticatedUser.userName ,
+            sender: authenticatedUser.userName,
             message: message
         }
         connection.invoke('Send', newMessage);

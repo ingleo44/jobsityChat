@@ -21,3 +21,8 @@
 /JobSityChatFront/node_modules
 /JobSityChatFront/obj
 /.vs/jobsityChat
+/Business/bin/Release/netcoreapp2.2
+/ChatServices/bin/Release/netcoreapp2.2
+/JobSityChatFront/bin/Release/netcoreapp2.2
+/Infrastructure/bin/Release/netcoreapp2.2
+/Entities/bin/Release/netcoreapp2.2

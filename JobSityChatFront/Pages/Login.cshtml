@@ -51,6 +51,7 @@
             .done(function (response) {
                 if (response.ok === true) {
                     localStorage.setItem("user", JSON.stringify(response.data.user));
+                    localStorage.setItem("token", JSON.stringify(response.data.token.token));
                     window.location.replace("/index");
                 } else {
                     alert("wrong username/password");
