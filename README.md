@@ -16,3 +16,13 @@ project JobsityChatFront - this is the frontend project this project should run 
 - Since this is only a demo project I used an in memory database for storing the users so it is necessary to create the users again every time you restart the application.
 
 
+Authentication:
+
+I wanted to separate the services for connecting to the database from the chat so I created tw different project one for the services and another for the chat, for that reason I decided to use the JWT autentication
+in order to allow me authenticate each service, I thought for this scenario windows authentication is not the most optimal choice. 
+
+Assumptions:
+The stock web service is working and the url is right.
+
+Missing Items
+I was not able to create the unit tests of the application

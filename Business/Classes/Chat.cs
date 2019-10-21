@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Business.Interfaces;
 using Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,47 +13,55 @@ using Microsoft.AspNetCore.SignalR;
 namespace Business.Classes
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class Chat : Hub
+    public class Chat : Hub, IBotSupervisor
     {
 
         private readonly IHttpClientFactory _clientFactory;
-        private List<Message> _messages = new List<Message>();
+        private readonly List<Message> _messages = new List<Message>();
 
         public Chat(IHttpClientFactory clientFactory)
         {
             _clientFactory = clientFactory;
         }
-        
+
+    
+
         public async Task Send(MessageViewModel message)
         {
             message.messageTime = DateTime.Now;
-            _messages.Add(new Message
-            {
-                User = message.sender,
-                MessageText = message.message,
-                SendDateTime = message.messageTime.Value
-            });
-            await CheckMessage(message.message);
             await Clients.All.SendAsync("Send", message);
-        }
-
-
-        private async Task CheckMessage(string message)
-        {
-            const string regex = @"/stock=[A-Za-z0-9.]*";
-            var match = Regex.Match(message, regex, RegexOptions.IgnoreCase);
-            if (message != string.Empty && match.Success)
+            var stocks = GetStocksFromMessage(message.message);
+            foreach (var stockCode in stocks)
             {
-                var stockCode = match.Value.Replace(@"/stock=", "");
                 var quote = await GetStockQuote(stockCode);
-                var botMessage = new MessageViewModel{sender="bot", message = "", messageTime = DateTime.Now};
-                botMessage.message = quote != null ? $"{stockCode} quote is ${quote}" : $"{stockCode} quote not found";
+                if (quote.Contains("N/D"))
+                    quote = "";
+                var botMessage = new MessageViewModel { sender = "bot", message = "", messageTime = DateTime.Now };
+                botMessage.message = quote != "" ? $"{stockCode} quote is ${quote}" : $"{stockCode} quote not found";
                 await Send(botMessage);
             }
+
         }
 
 
-        private async Task<string> GetStockQuote(string stockCode)
+        public ICollection<string> GetStocksFromMessage(string message)
+        {
+            var result = new List<string>();
+            const string regex = @"/stock=[A-Za-z0-9.]*";
+            var matches = Regex.Matches(message, regex, RegexOptions.IgnoreCase);
+            foreach (Match match in matches)
+            {
+                if (message == string.Empty || !match.Success) continue;
+                var stockCode = match.Value.Replace(@"/stock=", "");
+                result.Add(stockCode);
+            }
+
+            return result;
+
+        }
+
+
+        public async Task<string> GetStockQuote(string stockCode)
         {
             try
             {
@@ -92,18 +101,18 @@ namespace Business.Classes
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                return null;
             }
 
             return null;
         }
-    }
 
-    public class MessageViewModel
-    {
-        public string sender { get; set; }
-        public string message { get; set; }
-        public DateTime? messageTime { get; set; }
-    }
+}
+
+public class MessageViewModel
+{
+    public string sender { get; set; }
+    public string message { get; set; }
+    public DateTime? messageTime { get; set; }
+}
 }
